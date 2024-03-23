@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:geometric/src/shapes/circle.dart';
-import 'package:geometric/src/shapes/line.dart';
-import 'package:vibration/vibration.dart';
+import 'package:geometric/src/shapes/circle.dart';
+import 'package:touchable/touchable.dart';
 // import 'package:geometric/src/shapes/square.dart';
 
 void main() {
@@ -23,7 +22,7 @@ class GeometricApp extends StatelessWidget {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
-        body: AppBody(),
+        body: const AppBody(),
       ),
     );
   }
@@ -34,17 +33,30 @@ class AppBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     double deviceWidth = MediaQuery.of(context).size.width - 40;
     double deviceHeight = MediaQuery.of(context).size.height - 120;
 
     return Center(
-      child: Container(
+      child: SizedBox(
         width: deviceWidth,
         height: deviceHeight,
-        child: CustomPaint(
-          foregroundPainter: Line(),
-        )
+        child: CanvasTouchDetector(
+          gesturesToOverride: const [
+            GestureType.onLongPressStart,
+            GestureType.onLongPressEnd,
+            GestureType.onPanDown,
+            GestureType.onPanStart,
+            GestureType.onPanUpdate,
+            GestureType.onLongPressMoveUpdate,
+            GestureType.onTapDown,
+          ],
+          builder: (c) => CustomPaint(
+            painter: Circle(c),
+            child: Listener(
+              onPointerDown: (event) => print('oi'),
+            ),
+          ),
+        ),
       ),
     );
   }
