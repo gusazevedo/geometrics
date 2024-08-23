@@ -1,41 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:touchable/touchable.dart';
-import 'package:vibration/vibration.dart';
 
-class Circle extends CustomPainter {
-  final BuildContext context;
+class Circle extends StatelessWidget {
+  final Key customPaintKey;
 
-  Circle(this.context);
+  const Circle({
+    super.key,
+    required this.customPaintKey,
+  });
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final touchyCanvas = TouchyCanvas(context, canvas);
-    final paint = Paint()
-      ..strokeWidth = 20
-      ..style = PaintingStyle.stroke;
-
-    final center = Offset(size.width / 2, size.height / 2);
-
-    touchyCanvas.drawCircle(center, size.width / 2, paint,
-        onLongPressStart: (_) async {
-      print('LONG PRESS STAAAAART');
-      Vibration.vibrate(duration: 1000);
-    }, onLongPressEnd: (_) {
-      print('LONG PRESS EEEND');
-    }, onLongPressMoveUpdate: (_) {
-      print('LONG PRESS MOVE UPDATE');
-    }, onTapDown: (_) {
-      Vibration.vibrate(duration: 1000);
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = constraints.maxWidth;
+      return CustomPaint(
+        key: customPaintKey,
+        size: Size(
+          width,
+          width,
+        ),
+        painter: ShapesPainter(
+          size: Size(
+            width,
+            width,
+          ),
+        ),
+      );
     });
+  }
+}
+
+class ShapesPainter extends CustomPainter {
+  final Size size;
+
+  ShapesPainter({
+    super.repaint,
+    required this.size,
+  });
+
+  Path _getCirclePath() {
+    return Path()..addOval(Rect.fromLTRB(0, 0, size.width, size.height));
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint();
+
+    paint.color = Colors.yellow;
+
+    final Path circlePath = _getCirclePath();
+    canvas.drawPath(circlePath, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
+  }
 
   @override
   bool? hitTest(Offset position) {
-    // _path - is the same one we built in paint() method;
-    // print(position);
-    return super.hitTest(position);
+    final Path circlePath = _getCirclePath();
+    return circlePath.contains(position);
   }
 }
